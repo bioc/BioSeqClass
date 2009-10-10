@@ -1,0 +1,57 @@
+## This is a part of program for predict secondary structure using "PSIPRED".
+use LWP::Simple;
+use LWP::UserAgent;
+use Net::POP3;
+
+my $ua = LWP::UserAgent->new ;
+my $response = $ua->post("http://bioinf3.cs.ucl.ac.uk/cgi-bin/psipred/psipred.cgi",
+                    ["Program" => $Program,
+                    "Filter" => $Filter,
+                    "Sequence" => $Sequence,
+                    'Subject' => $name,
+                    "Email" => "lihong@scbit.org" ]) ;
+$receive = 0;
+if ($response->is_success) { 
+  $pop = Net::POP3->new("mail.scbit.org") or die "Can't open connection to mail server\n";  
+  defined ($pop->login("lihong", "840524lh")) or die "username and password do not work\n";
+  $t=0;
+  while( $receive==0 ){
+    $t = $t+1 ;
+    if($t%50000==0){
+      $messages = $pop->list()  or die "Can't get list of undeleted messages\n";
+      foreach $msgid (keys %$messages) {
+        $message = $pop->get($msgid);
+        unless (defined $message) {
+          warn "Couldn't fetch $msgid from server: $!\n";
+          next;
+        }
+        if($message){
+        	$content = join("",@$message);
+        	if( $content=~/\-Path: <psipred\@cs\.ucl\.ac\.uk>/ and $content=~/$name PSIPRED Results/){
+        	  $conf="";
+        	  $pred="";
+        	  $aa="";        	 
+        	  $content=~s/.*PSIPRED HFORMAT//s;
+        	  while( $content=~/Conf: (\d+)/g ){
+        	    $conf=$conf.$1 ;
+        	  }
+        	  while( $content=~/Pred: ([CEH]+)/g ){
+        	    $pred=$pred.$1 ;
+        	  }
+        	  while( $content=~/AA: ([\w]+)/g ){
+        	    $aa=$aa.$1 ;
+        	  }
+        	  print OUT "Residue\t$aa\nSecondaryStructure\t$pred\nConfidenceScore\t$conf\n" ;
+        	  $pop->delete($msgid);
+        	  $pop->quit();
+        	  $receive = 1 ;        	  
+        	  last;        	  
+        	}
+        }
+      }
+    }
+  }
+} else {
+  die $response->status_line;
+}
+close(OUT);

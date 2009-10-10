@@ -1,0 +1,88 @@
+## This is a part of program for predict secondary structure using "PROTEUS2".
+use LWP::Simple;
+use LWP::UserAgent;
+
+my $ua = LWP::UserAgent->new ;
+my $response = $ua->post("http://wks16338.biology.ualberta.ca/proteus2/Submit.do;jsessionid=240F8D2AEB9FC959E5A0B7199C60E817",
+                    [
+                    "runSecondaryStructure" => "on",
+                    "organism" => $organism,
+                    "sequence" => $sequence ]) ;
+
+if ($response->is_success) { 
+  my $content =$response->content;
+  if($content =~/ID = (\d+)/){ 
+  	$id=$1;
+  	$url = "http://www.proteus2.ca/proteus2/Result.do?ID=$id" ;  	
+  	$t=0;
+  	while(! defined $content){  		
+  		$t = $t+1 ;
+    		if($t%50000==0){
+    	  		$content = get($url) ;	
+    		}    
+  	}
+  	$t=0;
+  	while($content!~/PROTEUS2 prediction \(ID=$id\) complete/){
+  		  $t = $t+1 ;
+    		if($t%50000==0){
+    	  		$content = get($url) ;	
+    		}  
+  	}  	
+  	$residue="";
+	  $predict="";
+	  $score="";
+  	@line=split(/<span class=\"header\"/,$content ) ;
+	for $line(@line){
+        	$line=~s/\n//g;
+    		if($line=~/>Predicted Complete Secondary Structure: </){
+    	     if($line=~/<div (.*)<\/div>/){
+    				@array = split(/<br>/,$1) ;
+    				$residue="";
+    				$predict="";
+    				$score="";    
+    				for($i=0; $i<@array-5; $i=$i+5){
+    	          if($array[$i+1]=~/>(\w+)</g){
+    		           		$residue = $residue.$1;
+    		     		}
+    			   		while ( $array[$i+2]=~/>(\w+)</g ){
+    			   		$predict = $predict.$1 ;
+    			   		}
+    			   	  if($array[$i+2]=~/>(\w+)$/){
+    			   	  $predict = $predict.$1 ;	
+    			   	  }
+    			   		if($array[$i+3]=~/(\d+)/){
+    			   		$score = $score.$1 ;
+    			   		}
+    				}    				
+    			}
+    			print OUT "Residue\t$residue\nPROTEUS2_SecondaryStructure\t$predict\nPROTEUS2_ConfidenceScore\t$score\n" ;	    		
+    		}
+    		if($line=~/>Detailed Prediction Information: </){    			 
+    				@array2 = split(/<font class=\"subsubheader\">/,$line) ;
+    				for($j=1; $j<=4; $j=$j+1){
+    				  @array = split(/<br>/,$array2[$j]) ;
+    				  if($array[0]=~/^(.*)</){
+    				    $method=$1;    				    
+    				    $predict="";
+    						$score="";  
+    				    for($i=1; $i<@array; $i=$i+4){
+    			   	  	while ( $array[$i+1]=~/>(\w+)</g ){
+    			   	  	$predict = $predict.$1 ;
+    			   	  	}
+    			   	    if($array[$i+1]=~/>(\w+)$/){
+    			   	    $predict = $predict.$1 ;	
+    			   	    }
+    			   	  	if($array[$i+2]=~/(\d+)/){
+    			   	  	$score = $score.$1 ;
+    			   	  	}
+    			   	  }
+    			   	  print OUT "$method"."_SecondaryStructure\t$predict\n$method"."_ConfidenceScore\t$score\n" ;	    		
+    				  }
+    				}
+    		}
+	}
+  }
+} else {
+  die $response->status_line;
+}
+close(OUT);

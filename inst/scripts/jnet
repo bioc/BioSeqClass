@@ -1,0 +1,29 @@
+## This is a part of program for predict secondary structure using "PROTEUS2".
+use LWP::Simple;
+use LWP::UserAgent;
+
+my $ua = LWP::UserAgent->new ;
+my $response = $ua->post("http://www.compbio.dundee.ac.uk/~www-jpred/cgi-bin/jpred_form",
+                    ["seq" => $seq,
+                    "pdb" => '1',                    
+                    "input" => 'seq'] ) ;
+
+if ($response->is_success) { 
+  $content = $response->content ;
+  if($content=~/URL=http:.*?(jp_.*)"/){
+    $id = $1;
+    $content2 = get("http://www.compbio.dundee.ac.uk/~www-jpred/results/$id/$id".".results.html");
+    $t = 0;
+    while(! defined $content2){
+    	$t = $t+1 ;    	
+          if($t%50000==0){
+            $content2 = get("http://www.compbio.dundee.ac.uk/~www-jpred/results/$id/$id".".results.html") ;	
+          }    		
+    }
+    $content3 = get("http://www.compbio.dundee.ac.uk/~www-jpred/results/$id/$id".".html");
+    print OUT "$content3" ;  
+  }
+} else {
+  die $response->status_line;
+}
+close(OUT);

@@ -1,0 +1,37 @@
+## This is a part of program for predict pfam domain using "hmmpfam".
+
+$tmp = $inFasta.".tmp" ;
+`$path --acc  --compat -E $cutoff $database $inFasta > $tmp `;
+
+open(In,$tmp) or die;
+open(Out,">$inFasta".".pfam");
+print Out "Protein_ID\tStart\tEnd\tPfam_AC\tE-value\n" ;
+while($line=<In>){
+	chomp($line);
+	if($line=~/Query:\s+(\S+)/){
+		$protein = $1 ;
+	}
+	if($line=~/Parsed for domains:/){
+			$line=<In>;
+			$line=<In>;
+			do{
+				$line=<In>;
+				chomp($line);
+				if( $line=~/no hits above thresholds/  ){
+					next;
+				}
+				elsif( $line ne ""  ){
+					$line=~s/\s+/ /g ;
+					@match =split(/\s/,$line);
+					$n=@match-1 ;
+					if( $match[$n]< $cutoff  ){
+						print Out
+						"$protein\t$match[2]\t$match[3]\t$match[0]\t$match[$n]\n" ;
+					}
+				}
+			}until($line eq "");
+	}
+}
+close(In);	
+close(Out);	
+

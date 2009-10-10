@@ -1,0 +1,483 @@
+%\VignetteIndexEntry{Using the BioSeqClass Package}
+%\VignetteKeywords{Classification}
+%\VignetteDepends{BioSeqClass}
+%\VignettePackage{BioSeqClass}
+
+\documentclass[12pt,fullpage]{article}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+\usepackage{amsmath,pstricks,fullpage}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage[authoryear,round]{natbib}
+\usepackage{multirow}
+\usepackage[dvips]{graphicx}
+
+\author{Hong Li$^\ddagger$\footnote{sysptm@gmail.com}}
+\begin{document}
+\title{Using the BioSeqClass Package}
+\maketitle
+\begin{center}$^\ddagger$Key Lab of Systems Biology\\ 
+Shanghai Institutes for Biological Sciences\\ 
+Chinese Academy of Sciences, P. R. China
+\end{center}
+
+\tableofcontents
+
+\section{Overview} 
+There are now 863 completely sequenced genomes of cellular organisms in NCBI genome 
+database. Nevertheless, functional annotation drops far behind sequencing because 
+functional valida-tion experiments are time-consuming and costly. Taken model organism 
+Homo sapiens, Mus musculus and Saccharomyces cere-visiae as examples, only 16%, 2% 
+and 18% genes have experimen-tally determined functions (Traceable Author Source (TAS) 
+anno-tations in Gene Ontology), respectively. Thus 
+computational methods for predicting function is still a fun-damental complement. 
+The most common com-putation approach is biological sequence 
+based classification, since sequence information is still the most abundant and 
+reliable. Se-quence based classification has been used in: discovering new microRNA 
+candidates, predicting transcription factor binding sites 
+, detecting protein post-translational modification sites 
+, and so on.
+
+Features and models are two basic factors for classification. Features generally are 
+numerical values that can be used to distinguish different classes. Therefore it is 
+preferable to select features that can achieve better and faster classification. 
+Classification models are built from features by various algorithms, and it is 
+necessary to evaluate its prediction ability by cross validation or jackknife test. 
+For biological sequences, there are additional steps: one is to reduce homolog 
+sequences which might result in overestimation of prediction accuracy, and then 
+another most important step is to convert sequences into numerical features. 
+Thus, the general workflow for sequence-based classifications includes 
+(Figure \ref{fig:workflow3}): reduce homolog sequences; extract features from 
+sequences and code them to numerical values; combine and select features; build 
+classification model and evaluate its performance. 
+
+Here we present an R package (BioSeqClass) to carry out the general workflow for 
+biological sequence based classification. It contains diverse fearure coding schemas 
+for RNA, DNA and proteins, supports feature seletion, and integrates multiple 
+classification methods.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics{workflow.pdf}
+\caption{\label{fig:workflow3}Workflow for Biological Sequence based Classification.}
+\end{center}
+\end{figure}
+
+\section{Installation}
+
+\subsection{Requirements}
+BioSeqClass employs some external programs to extract biological 
+properties and use other R packages to build classification model:
+
+\begin{enumerate}
+\item BioSeqClass imported R packages are listed in table~\ref{table:package}.
+These packages will be automatically installed when Biocalss is firstly loaded.
+\item External programs are used to assist the performance of BioSeqClass (see 
+table~\ref{table:program}). Some programs are 
+invoked via their web service, and some ones are needed to be installed at 
+the local computer.
+
+Note: 
+You do not need to install programs listed in table~\ref{table:program}, unless
+you will use the related function in BioSeqClass.
+\end{enumerate}
+
+\subsection{Installation}
+To install BioSeqClass, users can use the installation script "BioSeqClass.R" to 
+download the newest version and install it in R.
+\begin{Sinput}
+source("http://www.biosino.org/download/BioSeqClass/BioSeqClass.R")
+BioSeqClass()
+library(BioSeqClass)
+\end{Sinput}
+Note: Web Connection is needed to install BioSeqClass and its required packages.
+All the codes in this vignette were tested in R 2.8.0 and 2.9.0, thus the latest R 
+version is recommended.
+
+\section{Function description}
+
+\subsection{Homolog Reduction}
+Homologous sequences in training/testing data may lead to overestimation of 
+prediction accuracy. Therefore, the first step for sequence based classification 
+and prediction is homolog reduction based on sequence similarity. Taking 
+computation complexity and similarity restriction into consideration, homolog 
+reductions for full-length sequences 
+and fragment sequences are different. We have designed different functions to deal with 
+them, respectively (see table~\ref{table:hr}).
+
+\begin{itemize}
+\item \Rfunction{hr} - It employs \Rfunction{cdhitHR} and \Rfunction{aligndisHR} 
+  to filter homolog sequences by sequence similarity. \Rfunction{cdhitHR} is 
+  designed to filter full-length protein or gene sequences.
+  \Rfunction{aligndisHR} is designed for aligned sequences with equal length.
+\item \Rfunction{cdhitHR} - It uses cd-hit program to do homolog reduction 
+  ("formatdb" and "blastall" are required for running cd-hit program). 
+  CD-HIT is a program for clustering large protein database at high sequence 
+  identity threshold \citep{2}.  
+\item \Rfunction{aligndisHR} - It uses the number of different residues to do 
+  homolog reduction \citep{3}. The algorithm proceeds in a stepwise manner by first 
+  eliminating sequences that were different from another in exactly 1 position. 
+  Elimination proceeds one peptide at a time; Re-evaluate after each peptide 
+  is removed. Once no further homologs of distance 1 remain, homologs of distance 
+  2 are eliminated, and so forth until identity between all peptides are less 
+  than given cutoff.
+\end{itemize}
+
+\subsection{Feature Extraction and Numerical Coding}
+\subsubsection{Biological sequences}
+RNA, DNA and protein are three kinds of basic biological sequences. RNA and DNA
+are composed of bases, while proteins are composed of amino acids. Furthermore,
+amino acids have different physical-chemical properties, which were used to 
+divide amino acids into different groups. These elements and groups are basic
+objects for feature extraction (see table~\ref{table:ele}).
+
+\subsubsection{Feature Coding}
+Feature coding means to extract features from sequences and convert them into numerical 
+values. The frequently used features are the basic elements of sequence (bases, amino acids), 
+physical-chemical properties, secondary structures, and so on. There are many 
+methods to convert features to numerical values. The simplest is the 
+composition of element. But more sophisticated conversions are preferrable 
+for achieving better distinguishing power. Previous studies have shown that 
+feature coding is the key point for the accuracy of classification and 
+prediction. Here we have summarized various feature coding methods
+used in published papers and carried out them in BioSeqClass (see table~\ref{table:feature}).
+These functions will allow more diverse choices of coding strategies and accelerate the feature 
+coding process. We also provide a function \Rfunction{combine} to test the 
+performance of models with different feature coding schemes and different 
+classification algorithms. 
+                                  
+\subsection{Feature Selection}      
+Features are important for the accuracy of prediction model. However, it does not mean that 
+the more the better. Computation time is usually increased with the increase of number of 
+features. Conflictive features would even reduce the accuracy. Therefore, suitable 
+feature selection is needed for better prediction performance and less computation cost. 
+We provided two functions for feature selection (see table~\ref{table:fs}).
+                                  
+\subsection{Model Building and Performance Evaluation}    
+Besides features, classification method is another factor that influences 
+classification. Different cases may have different perference over classification methods.
+Multiple classification methods are integrated and available in BioSeqClass (see 
+table~\ref{table:model}). To evaluate and compare classification models, performance 
+assessment is done for each model, including precision, sensitivity, specificity, 
+accuracy, and matthews correlation coefficient.
+      
+\begin{table}
+\caption{\label{table:package}Imported R packages.}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\bf{Existing R Package} & \bf{Functions used by BioSeqClass}\\ \hline
+\Rpackage{Biostrings} & readFASTA, writeFASTA \\ \hline
+\Rpackage{e1071} & svm \\ \hline
+\Rpackage{ipred} & bagging \\ \hline
+\Rpackage{klaR} & svmlight, NaiveBayes \\ \hline
+\Rpackage{randomForest} & randomForest \\ \hline
+\Rpackage{class} & knn \\ \hline
+\Rpackage{tree} & tree \\ \hline
+\Rpackage{nnet} & nnet \\ \hline
+\Rpackage{rpart} & rpart \\ \hline
+\Rpackage{party} & ctree \\ \hline
+\Rpackage{foreign} & write.arff \\ \hline
+\Rpackage{Biobase} & addVigs2WinMenu \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\newpage 
+\begin{table}
+\footnotesize
+\caption{\label{table:program}Invoked External Programs.}
+\begin{center}
+\begin{tabular}{|p{0.1\textwidth}|p{0.3\textwidth}|p{0.23\textwidth}|p{0.1\textwidth}|p{0.3\textwidth}|}
+\hline
+\bf{External Program} & \bf{Description} & \bf{Related BioSeqClass Function} & \bf{Need Installed?} & \bf{Ref} \\ \hline
+cd-hit & a program for clustering large protein database at high sequence identity threshold & \Rfunction{cdhitHR} & Yes  & \citep{2}\\ \hline
+blastpgp & PSI-BLAST (Position-Specific Iterated BLAST) for capturing the conservation pattern & \Rfunction{featurePSSM} & Yes  & \citep{21}\\ \hline
+SVMlight & support vector machine & \Rfunction{classifyModelSVMLIGHT} & No  & \citep{22}\\ \hline
+DSSP & a database of secondary structure assignments for protein entries in the Protein Data Bank (PDB) & \Rfunction{getDSSP} & No & \citep{24}\\ \hline
+Proteus2 & predict secondary structure & \Rfunction{predictPROTEUS} & No  & \citep{23}\\ \hline
+HMMER & predict domains with hmmpfam using models of Pfam database & \Rfunction{predictPFAM} & No & \citep{27}\\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\caption{\label{table:hr}Summary Table for Homolog Reduction Functions.}
+\begin{center}
+\begin{tabular}{|l|p{0.65\textwidth}|l|}
+\hline
+\bf{Function} & \bf{Description} & \bf{Ref}\\ \hline
+\Rfunction{hr} & employ \Rfunction{cdhitHR} and \Rfunction{aligndisHR} to do homolog reduction & \\ \hline
+\Rfunction{cdhitHR} & invoke cd-hit to cluster sequences & \citep{2} \\ \hline
+\Rfunction{aligndisHR} & calculated identity of aligned sequences & \citep{3} \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\caption{\label{table:ele}Summary Table for Base and Amino Acid Groups.}
+\begin{center}
+\begin{tabular}{|l|p{0.7\textwidth}|l|}
+\hline
+\bf{Function} & \bf{Description} & \bf{Ref}\\ \hline
+\Rfunction{elements} & basic elements of biological sequence & \\ \hline
+\Rfunction{aaClass} & amino acids groups depend on their physical-chemical
+properties: hydrophobicity, normalized Van der Waals volume, polarizability, 
+polarity, and so on & \citep{4} \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\newpage 
+\begin{table}
+\footnotesize
+\caption{\label{table:feature}Summary table for Feature Coding Functions.}
+\begin{center}
+\begin{tabular}{|l|l|p{0.45\textwidth}|p{0.2\textwidth}|}
+\hline
+\bf{Type} & \bf{Function} & \bf{Feature Coding Scheme} & \bf{Ref}\\ \hline
+\multirow{5}{0.1\textwidth}{DNA, RNA, or protein}  
+ & \Rfunction{featureBinary} & use 0-1 vector to code each element & \citep{39,40} \\
+ & \Rfunction{featureCTD} & numeric vector for the composition, transition and distribution of 
+properties & \citep{9} \\
+ & \Rfunction{featureFragmentComposition} & numeric vector for the frequency of k-mer sequence 
+fragment & \citep{5,6} \\
+ & \Rfunction{featureGapPairComposition} & numeric vector for the frequency of g-spaced element 
+pair & \citep{4}  \\
+ & \Rfunction{featureCKSAAP} & integer vector for the number of k-spaced element pair (k cycled 
+from 0 to g) & \citep{8} \\ \hline               
+\multirow{8}{0.1\textwidth}{protein}
+ & \Rfunction{featureHydro} & hydrophobic effect & \citep{10,11} \\ 
+ & \Rfunction{featureACH} & average cumulative hydrophobicity over a sliding window & \citep{31,32} \\ 
+ & \Rfunction{featureAAindex} & numeric vector measuring the physicochemical and biochemical properties based on AAindex database & \citep{12,13} \\
+ & \Rfunction{featureACI} & numeric vector measuring the average cumulative properties in AAindex & \\
+ & \Rfunction{featureACF} & numeric vector measuring the Auto Correlation Function (ACF) of properties in AAindex & \citep{14,15} \\            
+ & \Rfunction{featurePseudoAAComp} & numeric vector for the pseudo amino acid composition proposed by Chou,K.C. & \citep{16}  \\
+ & \Rfunction{featurePSSM} & numeric vector for the normalized position-specific score of PSSM generated by PSI-BLAST & \citep{17,18,19,31}  \\
+ & \Rfunction{featureDOMAIN} & vector for the number of domain. Domains can be obtained by 'predictPFAM' function. & \citep{28}  \\ 
+ & \Rfunction{featureSSC} & coding for secondary structure of protein. Secondary structure can be got by 'predictPROTEUS' or 'getDSSP'.& \citep{20} \\ \hline
+\multirow{3}{0.1\textwidth}{DNA or RNA}  
+ & \Rfunction{featureBDNAVIDEO} & Conformational and physicochemical DNA features from B-DNA-VIDEO database & \citep{33} \\ 
+ & \Rfunction{featureDIPRODB} & conformational and thermodynamic dinucleotide properties from DiProDB database (http://diprodb.fli-leibniz.de)& \citep{34} \\ \hline
+\end{tabular}                     
+\end{center}                  
+\end{table}
+
+\newpage 
+\begin{table}
+\caption{\label{table:fs}Summary Table for Feature Selection Functions.}
+\begin{center}
+\begin{tabular}{|l|p{0.6\textwidth}|l|}
+\hline
+\bf{Function} & \bf{Description} & \bf{Ref} \\ \hline
+\Rfunction{fsWeka} & feature selction by methods in WEKA & \citep{36} \\ \hline
+\Rfunction{classify} & build and test model with cross validation, also support feature selection by envoking WEKA & \\ \hline
+\Rfunction{fsFFS} & feature forword selction based on the performance of classification model & \citep{13} \\ \hline
+\end{tabular}                     
+\end{center}                  
+\end{table}       
+             
+\begin{table}
+\caption{\label{table:model}Summary Table for Classification Methods.}
+\begin{center}
+\begin{tabular}{|l|p{0.49\textwidth}|l|}
+\hline
+\bf{Function} & \bf{Description} & \bf{Depended R package}\\ \hline
+\Rfunction{classifyModelLIBSVM} & support vector machine by LIBSVM & \Rpackage{e1071}\\ \hline
+\Rfunction{classifyModelSVMLIGHT} & support vector machine by SVM-light & \Rpackage{klaR}\\ \hline
+\Rfunction{classifyModelNB} & naive bayes & \Rpackage{klaR}\\ \hline
+\Rfunction{classifyModelRF} & random forest & \Rpackage{randomForest}\\ \hline
+\Rfunction{classifyModelKNN} & k-nearest neighbor & \Rpackage{class}\\ \hline
+\Rfunction{classifyModelTree} & tree model & \Rpackage{tree}\\ \hline
+\Rfunction{classifyModelNNET} & neural net algorithm & \Rpackage{VR}\\ \hline
+\Rfunction{classifyModelRPART} & recursive partitioning trees & \Rpackage{rpart}\\ \hline
+\Rfunction{classifyModelCTREE} & conditional inference trees & \Rpackage{party}\\ \hline
+\Rfunction{classifyModelCTREELIBSVM} & combine conditional inference trees and support vector machine& \Rpackage{party}, \Rpackage{e1071}\\ \hline
+\Rfunction{classifyModelBAG} & bagging method & \Rpackage{ipred}\\ \hline
+\end{tabular}                     
+\end{center}                  
+\end{table}     
+                                 
+\newpage
+\section{Examples}                 
+To illustrate the use of BioSeqClass, lysine acetylation site prediction is taken as 
+an example.
+\begin{enumerate}
+\item Suppose the original data are protein FASTA sequences and lysine acetylation sites. 
+You can use \Rfunction{getTrain} to extract the flanking peptides of acetylation sites 
+as positive dataset, and filter these peptides based on sequence identity. Lysine 
+without acetylation annotation are regarded as negative dataset, and are filtered
+like the positive dataset. Considering the computational time, only 20 positive data 
+are used as examples in the following codes.
+<<homologReduction>>=
+  library(BioSeqClass)
+  # Example data in BioSeqClass.
+  file=file.path(.path.package("BioSeqClass"),"example","acetylation_K.fasta")
+  posfile = file.path(.path.package("BioSeqClass"), 
+       "example", "acetylation_K.site")
+  # Only a part of lysine acetylation sites are used for demo.
+  posfile1=tempfile()
+  write.table(read.table(posfile,sep='\t',header=F)[1:20,], posfile1, 
+    sep='\t', quote=F, row.names=F, col.names=F)
+  seqList = getTrain(file, posfile1, aa="K", w=7, identity=0.4)
+@
+
+\item If the original data are non-redundant positive/negative peptides. We directly 
+read the data into R and assign class labels for them.
+<<readData>>=
+  tmpDir=file.path(.path.package('BioSeqClass'), 'example')
+  tmpFile1=file.path(tmpDir, 'acetylation_K.pos40.pep')
+  tmpFile2=file.path(tmpDir, 'acetylation_K.neg40.pep')
+  posSeq=as.matrix(read.csv(tmpFile1,header=F,sep='\t',row.names=1))[,1]
+  negSeq=as.matrix(read.csv(tmpFile2,header=F,sep='\t',row.names=1))[,1]
+  seq=c(posSeq,negSeq)  
+  classLable=c(rep("+1",length(posSeq)),rep("-1",length(negSeq)) ) 
+  length(seq)
+@  
+
+\item Once you have positive/negative datasets, you can code them to numeric vectors 
+by functions listed in table~\ref{table:feature}. Function \Rfunction{featureBinary} 
+and \Rfunction{featureGapPairComposition} are taken as examples of different coding 
+methods, which use binary 0-1 coding and the composition of gapped amino acid pair, respectively.
+Other functions can be used in the same way.
+<<featureSelect>>=
+  # Use 0-1 binary coding.
+  feature1 = featureBinary(seq,elements("aminoacid"))
+  dim(feature1)
+  # Use the compostion of paired amino acids.
+  feature2 = featureGapPairComposition(seq,0,elements("aminoacid"))
+  dim(feature2)
+@
+
+\item \Rfunction{classify} is used to build classification model under cross 
+validation. It also supports feature selection by invoking WEKA. Models built with 
+selected features usually can obtain higher accuracy. In the following codes, two 
+models are built by \Rfunction{classify}. The 1st
+classification model 'LIBSVM\_CV5' is built by support vector machine with linear kernel 
+and get an accuracy of 0.56 under 5-fold cross validation. The 2nd classification model 
+'FS\_LIBSVM\_CV5' is also built by support vector machine with linear kernel, but a 
+feature selection method called "CfsSubsetEval" is used before building model. Thus the 2nd
+model using feature selection achieves an higher accuracy of 0.62 than the 1st model using 
+all features.
+<<classModel>>=  
+  data = data.frame(feature1,classLable)
+  # Use support vector machine and 5 fold cross validation to do classification.
+  LIBSVM_CV5 = classify(data, classifyMethod='libsvm',
+               cv=5, svm.kernel='linear',svm.scale=F)
+  LIBSVM_CV5[["totalPerformance"]]
+  # Features selection is done by envoking "CfsSubsetEval" method in WEKA.
+  FS_LIBSVM_CV5 = classify(data, classifyMethod='libsvm',
+                  cv=5, evaluator='CfsSubsetEval', search='BestFirst',
+                  svm.kernel='linear', svm.scale=F)
+  
+  FS_LIBSVM_CV5[["totalPerformance"]] ## Accuracy is increased by feature selection.
+  # Selected features:
+  colnames(data)[FS_LIBSVM_CV5$features[[1]]]
+@
+
+\item Different feature coding methods usually might result in different prediction 
+performance. \Rfunction{combine} can be used to test multiple feature 
+coding methods. Figure \ref{fig:FeatureSets16} shows the 3D plot of prediction 
+accuracy varied with feature coding functions and parameters. It can be generated
+by employing \Rfunction{combine} as follows (Note: It may be time consuming!):
+<<featureTest, eval=FALSE>>=
+  fileName = tempfile()
+  # Note: It may be time consuming.
+  testFeatureSet = combine(seq, classLable, fileName, cv=5, 
+    ele.type='aminoacid', featureMethod=c('Binary','GapPairComposition'),
+    classifyMethod='libsvm',
+    group=c('aaH', 'aaV', 'aaZ', 'aaP', 'aaF', 'aaS', 'aaE'), g=0,
+    hydro.methods=c('kpm', 'SARAH1'), hydro.indexs=c('hydroE', 'hydroF', 'hydroC') )
+  summary = read.csv(fileName,sep="\t",header=T)      
+  # Plot the result of 'combine'
+  if( !require("scatterplot3d") ){
+    install.packages("scatterplot3d",repos="http://stat.ethz.ch/CRAN",quiet=T) 
+  }
+  require("scatterplot3d")     
+  tmp1 = summary[,"Feature_Function"]
+  tmp2 = as.factor(sapply(as.vector(summary[,'Feature_Parameter']),
+         function(x){unlist(strsplit(x,split='; '))[1]}))
+  testResult = data.frame(as.integer(tmp2), as.integer(tmp1), summary[,"acc"])
+  s3d=scatterplot3d(testResult,
+      color=c('red','blue')[testResult[,2]], pch=19, xlab='Parameter',
+      ylab='Feature Coding', main='Result of combine',
+      zlab='Accuracy', lab=c(9,3,7),       
+      x.ticklabs=gsub('class: ','',sort(unique(tmp2))), 
+      type='h',ylim=c(0,3),y.margin.add=2.5,
+      y.ticklabs=c('',gsub('feature','',sort(unique(tmp1))),'') )
+@
+
+\item Features from multiple functions can be combined and re-selected to increase the 
+prediction accuracy. In the following code chunk, the first three feature sets 
+from 'testFeatureSet' are combined together ('testFeatureSet' is generated in the 
+aforementioned codes by \Rfunction{combine}). Then feature selection functions
+(\Rfunction{classify} and \Rfunction{fsFFS}) can be employed to 
+selecte features. (\Rfunction{classify} has been illustrated in the aforementioned 
+code chunk. Thus \Rfunction{fsFFS} is used here to do feature forward selection 
+to select a subset with maximum prediction accuracy (Note: It may be time consuming!). 
+The process of feature selection and the increasing 
+accuracy are shown in Figure \ref{fig:cvFFSClassify0005}.
+<<featureComSelect, eval=FALSE>>=
+  feature.index = 1:3
+  tmp <- testFeatureSet[[1]]$data
+  tmp1 <- testFeatureSet[[feature.index[1]]]$model
+  colnames(tmp) <- paste(
+    tmp1["Feature_Function"],
+    tmp1["Feature_Parameter"],
+    colnames(tmp),sep=" ; ")      
+  data <- tmp[,-ncol(tmp)]  
+  for(i in 2:length(feature.index) ){
+    tmp <- testFeatureSet[[feature.index[i]]]$data
+    tmp1 <- testFeatureSet[[feature.index[i]]]$model
+    colnames(tmp) <- paste(
+      tmp1["Feature_Function"],
+      tmp1["Feature_Parameter"],
+      colnames(tmp),sep=" ; ")    
+    data <- data.frame(data, tmp[,-ncol(tmp)] )
+  }
+  name <- colnames(data)
+  data <- data.frame(data, tmp[,ncol(tmp)] )  ## Combined features
+  # Use 'fsFFS' to do feature forward selection.
+  # Note: It may be time consuming.
+  combineFeatureResult = fsFFS(data,accCutoff=0.005,
+    classifyMethod="knn",cv=5)  ## It is time consuming.
+  tmp = sapply(combineFeatureResult,function(x){
+    c(length(x$features),x$performance["acc"])})
+  plot(tmp[1,],tmp[2,],xlab="Feature Number",ylab="Accuracy",
+    main="Result of 'fsFFS'", pch=19)
+  lines(tmp[1,],tmp[2,])
+@
+\end{enumerate}
+
+\newpage
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics{FeatureSets16.pdf}
+\caption{\label{fig:FeatureSets16}Result of \Rfunction{combine}.}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics{cvFFSClassify0005.pdf}
+\caption{\label{fig:cvFFSClassify0005}Result of \Rfunction{fsFFS}.}
+\end{center}
+\end{figure}
+
+\section{Session Information}
+
+This vignette was generated using the following package versions:
+<<echo=FALSE>>=
+sessionInfo()
+@
+
+\bibliographystyle{plainnat}
+\bibliography{BioSeqClass}
+
+\end{document}

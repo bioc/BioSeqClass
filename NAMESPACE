@@ -1,0 +1,35 @@
+importMethodsFrom(party, where)
+importFrom(Biobase, addVigs2WinMenu)
+importFrom(class, knn)
+importFrom(e1071, svm)
+importFrom(foreign, write.arff)
+importFrom(grDevices, dev.off, pdf)
+importFrom(ipred, bagging)
+importFrom(klaR, NaiveBayes, svmlight)
+importFrom(nnet, nnet)
+importFrom(party, ctree)
+importFrom(randomForest, randomForest)
+importFrom(rpart, rpart)
+importFrom(stats, predict, sd)
+importFrom(tree, tree)
+importFrom(utils, data, read.csv, write.table)
+importFrom(Biostrings, readFASTA, writeFASTA)
+importMethodsFrom(Biostrings, substr)
+
+export(
+       sub.seq, getTrain, hr, distance,
+       elements, aaClass, featureBinary, featureCTD, 
+       featureFragmentComposition, featureGapPairComposition, featureCKSAAP, 
+       featureHydro, featureACH, featureAAindex, featureACI, featureACF,
+       featurePseudoAAComp, featurePSSM, featureDOMAIN, featureSSC,
+       getDSSP, predictPROTEUS, predictPFAM,
+       featureBDNAVIDEO, featureDIPRODB,
+       classifyModelLIBSVM, classifyModelSVMLIGHT, classifyModelNB,
+       classifyModelRF, classifyModelKNN, classifyModelTree, classifyModelRPART,
+       classifyModelCTREE, classifyModelCTREELIBSVM, classifyModelBAG,
+       classifyModelNNET, performance,
+       classify, selectFFS,
+       combine
+)
+
+

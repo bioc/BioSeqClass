@@ -1,0 +1,35 @@
+## This is a part of program for predict solvent accessible surface area using "ASAP".
+
+use LWP::Simple;
+use LWP::UserAgent;
+
+my $ua = LWP::UserAgent->new ;
+my $response = $ua->post("http://ccb.imb.uq.edu.au/cgi-bin/asapredictor.cgi",
+                    ["model_to_use" => $model,
+                    "seq_text" => $seq ]) ;
+
+if ($response->is_success) { 
+  print out "Residue\tRelative_ASA\tASA\n";
+  my $content =$response->content;
+  if($content =~/<a href='(.*)'>HERE<\/a>/){    
+    $url = $1 ;
+    $content2 = get($url) ;
+    $t = 0;
+    while( $content2 =~/ASAP is running/ ){
+    	$t = $t+1 ;
+    	if($t%50000==0){
+    	  $content2 = get($url) ;	
+    	}    	
+    }    
+    $content2 =~s/.*Residue//s;
+    @array = split(/<\/tr>/,$content2);
+    foreach ($j=1; $j<@array; $j++){  	    	
+      if($array[$j]=~/<td>(\w)<\/td>.*<td>([\d\.]+)<\/td>.*<td>([\d\.]+)<\/td>/s){
+      	print out "$1\t$2\t$3\n" ;
+      }
+    }        
+  }
+} else {
+  die $response->status_line;
+}
+close(out);
