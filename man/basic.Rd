@@ -21,8 +21,6 @@
 
   pwm(seq,class=elements("aminoacid"))
   
-  sub.seq(seq, start, stop)  
-  
   .pathPerl(perlName, os)
   .callPerl(perlName, os)  
   
@@ -38,13 +36,33 @@
     strings "aaH", "aaV", "aaZ", "aaP", "aaF", "aaS" or "aaE".}  
   \item{seq}{a string vector for the protein or gene sequences.} 
   \item{class}{a list for the class of biological properties. It can 
-    be produced by \code{\link{elements}} and \code{\link{aaClass}}.} 
-  \item{start}{a positive integer vector indicating the first element of subsequence.} 
-  \item{stop}{a positive integer vector indicating the last element of subsequence.} 
+    be produced by \code{\link{elements}} and \code{\link{aaClass}}.}   
   \item{perlName}{a character string for the name of perl program.} 
   \item{os}{character string, giving the Operating System (family) of the computer.}   
 }
-\details{                        
+\details{     
+  \code{\link{elements}} returns a list of basic elements of biological sequence. 
+  Parameter "ele.type" supported following selection:  
+  "rnaBase" - basic elements of RNA (ATCG).  
+  "dnaBase" - basic elements of DNA (AUCG).
+  "aminoacid" - 20 amino acides (RKEDQNWGASTPHYCVLIMF).
+  "aminoacid2" - 20 amino acides and 1 pseudo amino acid "O" (RKEDQNWGASTPHYCVLIMFO). 
+                 Unknown or uncomplete amino acides will be substituted by pseudo                  
+                 amino acid.
+
+  \code{\link{aaClass}} returns a list of amino acids groups depend on their 
+  physical-chemical properties. Parameter "aa.type" supports following selection:
+  "aaH" (hydrophobicity): Polar(RKEDQN), Neutral(GASTPHY), Hydrophobic(CVLIMFW)
+  "aaV (normalized Van der Waals volume)": Small(GASCTPD), Medium(NVEQIL), Large(MHKFRYW)
+  "aaZ" (polarizability): Low polarizability	(GASDT), Medium polarizability 
+                          (CPNVEQIL), High polarizability(KMHFRYW)
+  "aaP" (polarity): Low polarity	(LIFWCMVY), Neutral polarity (PATGS), High polarity	(HQRKNED)
+  "aaF": Acidic	(DE), Basic (HKR), Polar (CGNQSTY), Nonpolar (AFILMPVW)
+  "aaS": Acidic	(DE), Basic	(HKR), Aromatic (FWY), Amide (NQ), Small hydroxyl	(ST), 
+         Sulfur-containing (CM), Aliphatic (AGPILV)
+  "aaE": Acidic	(DE), Basic(HKR), Aromatic (FWY), Amide (NQ), Small hydroxyl (ST),
+         Sulfur-containing (CM), Aliphatic 1 (AGP), Aliphatic 2	(ILV)
+                   
   \code{\link{pwm}} returns a M*N position weight matrix (PWM) of input sequences. 
   M is the number of elements given by parameter "class". N is the length of each 
   sequence. Each row is a kind of element, and each column is a position. The 
@@ -53,8 +71,6 @@
   \code{\link{.pathPerl}} write the path of Perl to perl program file.
   
   \code{\link{.callPerl}} invoke Perl program via R.
-  
-  \code{\link{sub.seq}} extract subsequences by given start and stop postions.
     
   \code{\link{dssp.ss}} is a vector storing the secondary structure data 
     from DSSP database (\url{http://swift.cmbi.ru.nl/gv/dssp/}).
@@ -70,21 +86,8 @@
 }
 \author{Hong Li}
 \examples{  
-  ## use readFASTA()/writeFASTA() to read/write FASTA file.
-  library(Biostrings)
-  file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")
-  tmp = readFASTA(file)
-  seq <- sapply(tmp,function(x){x[["seq"]]})
-  names(seq) <- sapply(tmp,function(x){x[["desc"]]}) 
-  
-  ## get the sequence fragment  
-  sub1 = sub.seq(seq,rep(1,length(seq)),rep(4,length(seq)))
-  tmp = round(sapply(seq,function(x){runif(1,min=1,
-    max=length(unlist(strsplit(x,split="")))-5)}))
-  sub2 = sub.seq(seq,tmp,tmp+5)
-  
-  ## cacluate the position weight matrix for sequences with equal length
-  m = BioSeqClass:::pwm(sub1)
+  ## amino acids groups depend on their hydrophobicity
+  aaClass("aaH")
   
   ## load data: dssp.ss
   data(dssp.ss)

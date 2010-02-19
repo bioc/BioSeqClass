@@ -43,6 +43,7 @@ cdhitHR <- function(seq, identity=0.3, cdhit.path){
         !file.exists(file.path(cdhit.path,"psi-cd-hit.pl")) ){
       stop(paste("cdhit.path",cdhit.path,"is not corrected"))
     }
+    names(seq) = sapply(seq,function(x){x$desc})
     perlName <- paste(tempfile("tempPerl"), "pl", sep=".")
     .pathPerl(perlName,.Platform$OS.type)    
     inFasta = tempfile("tempFasta") ;
@@ -55,9 +56,8 @@ cdhitHR <- function(seq, identity=0.3, cdhit.path){
     write(readLines( file.path(.path.package("BioSeqClass"),"scripts",
       "homologReduction_cdhit") ), file = perlName, append = TRUE) 
     .callPerl(perlName, .Platform$OS.type) 
-    tmp = seq[as.vector(as.matrix(read.csv(outFile,header=F,sep="\t")))] 
-    reducSeq <- list()                  
-    for (x in 1:length(tmp) ){reducSeq[[x]]=list("desc"=names(tmp)[x],"seq"=tmp[x]) }  
+    reducSeq = seq[as.vector(as.matrix(read.csv(outFile,header=F,sep="\t")))]     
+    
     unlink(perlName)
     unlink(file.path(dirname(inFasta),dir(path=dirname(inFasta),pattern=basename(inFasta))),recursive=T) 
     return(reducSeq)

@@ -1,6 +1,6 @@
 \name{selectFFS}
 \alias{selectFFS}
-\title{Feature Selection by FFS}
+\title{feature forward selection}
 \description{
   feature forward selection.
 }
@@ -40,16 +40,16 @@
   classLable=c(rep("+1",length(posSeq)),rep("-1",length(negSeq)) ) 
   data = data.frame(featureBinary(seq),classLable)
   
-if(interactive()){  
-  ## Use KNN to evaluate the performance of feature subset, 
-  ## and use Feature Forword Selection method to increase feature.
-  # If the difference of accuracy between two models is less than 0.01, feature 
-  # selection will stop.
-  FFS_NNA_CV5 = selectFFS(data,accCutoff=0.01,classifyMethod="knn",cv=5)
-  # If 20 features have been selected, feature selection will stop.
-  FFS_NNA_CV5 = selectFFS(data,stop.n=3,classifyMethod="knn",cv=5)
-  # If any one condiction is satisfied, feature selection will stop.
-  FFS_NNA_CV5 = selectFFS(data,accCutoff=0.001,stop.n=100,classifyMethod="knn",cv=5)   
-}
+  if(interactive()){  
+    ## Use KNN to evaluate the performance of feature subset, 
+    ## and use Feature Forword Selection method to increase feature.
+    # If the difference of accuracy between two models is less than 0.01, feature 
+    # selection will stop.
+    FFS_NNA_CV5 = selectFFS(data,accCutoff=0.01,classifyMethod="knn",cv=5)
+    # If 20 features have been selected, feature selection will stop.
+    FFS_NNA_CV5 = selectFFS(data,stop.n=3,classifyMethod="knn",cv=5)
+    # If any one condiction is satisfied, feature selection will stop.
+    FFS_NNA_CV5 = selectFFS(data,accCutoff=0.001,stop.n=100,classifyMethod="knn",cv=5)   
+  }
 }
   

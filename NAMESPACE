@@ -17,7 +17,7 @@ importFrom(Biostrings, readFASTA, writeFASTA)
 importMethodsFrom(Biostrings, substr)
 
 export(
-       sub.seq, getTrain, hr, distance,
+       getTrain, hr, distance,
        elements, aaClass, featureBinary, featureCTD, 
        featureFragmentComposition, featureGapPairComposition, featureCKSAAP, 
        featureHydro, featureACH, featureAAindex, featureACI, featureACF,
@@ -28,8 +28,7 @@ export(
        classifyModelRF, classifyModelKNN, classifyModelTree, classifyModelRPART,
        classifyModelCTREE, classifyModelCTREELIBSVM, classifyModelBAG,
        classifyModelNNET, performance,
-       classify, selectFFS,
-       combine
+       classify, selectFFS, selectWeka, featureEvaluate
 )
 
 

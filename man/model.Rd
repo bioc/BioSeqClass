@@ -11,9 +11,9 @@
 \alias{classifyModelCTREELIBSVM}
 \alias{classifyModelBAG}
 \alias{classifyModelNNET}
-\title{Classification Model}
+\title{Classification Models}
 \description{
-  These functions build classification model and evaluate performance. 
+  These functions build various classification models. 
 }
 \usage{  
   classifyModelLIBSVM(train,svm.kernel="linear",svm.scale=FALSE)

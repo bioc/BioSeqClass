@@ -540,7 +540,7 @@ featurePseudoAAComp <- function(seq,d,w=0.05){
                                  }) )
                     })
              })
-    pseudo = cbind(compo,t(pseudo))
+    pseudo = cbind(compo,matrix(unlist(pseudo),ncol=d))
     pseudo = t(apply(pseudo,1,function(x){ y=sum(x[1:20])+w*sum(x[21:length(x)]); 
                                            x[1:20] = x[1:20]/y;
                                            x[21:length(x)] = w*x[21:length(x)]/y;

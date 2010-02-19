@@ -1,8 +1,9 @@
 \name{classify}
 \alias{classify}
-\title{Classification}
+\title{Classification with Specific Features and Cross-Validation}
 \description{
-  Classification with cross validation and selected features
+  Classification with selected features and cross-validation. It supports 10 classification
+  algorithms, feature selection by Weka, cross-validation and leave-one-out test.
 }
 \usage{
   classify(data,classifyMethod="libsvm",cv=10,
@@ -20,7 +21,7 @@
     of the strings "libsvm", "svmlight", "NaiveBayes", "randomForest", "knn",
     "tree", "nnet", "rpart", "ctree", "ctreelibsvm", "bagging".} 
   \item{cv}{an integer for the time of cross validation, or a string "leave\_one\_out" 
-    for the jacknife test.} 
+    for the jackknife test.} 
   \item{features}{an integer vector for the index of interested columns in data,
     which will be used as features for build classification model.}
   \item{evaluator}{a string for the feature selection method used by WEKA. This 
@@ -126,22 +127,22 @@
   FS_LIBSVM_CV5 = classify(data,classifyMethod="libsvm",cv=5,evaluator="CfsSubsetEval",
                  search="BestFirst",svm.kernel="linear",svm.scale=FALSE)    
   
-if(interactive()){
-
-  KNN_CV5 = classify(data,classifyMethod="knn",cv=5,knn.k=1)  
+  if(interactive()){
   
-  RF_CV5 = classify(data,classifyMethod="randomForest",cv=5)
-  
-  TREE_CV5 = classify(data,classifyMethod="tree",cv=5)
-  
-  NNET_CV5 = classify(data,classifyMethod="nnet",cv=5)
-  
-  RPART_CV5 = classify(data,classifyMethod="rpart",cv=5,evaluator="")
-  
-  CTREE_CV5 = classify(data,classifyMethod="ctree",cv=5,evaluator="")  
-  
-  BAG_CV5 = classify(data,classifyMethod="bagging",cv=5,evaluator="")  
-       
-}
+    KNN_CV5 = classify(data,classifyMethod="knn",cv=5,knn.k=1)  
+    
+    RF_CV5 = classify(data,classifyMethod="randomForest",cv=5)
+    
+    TREE_CV5 = classify(data,classifyMethod="tree",cv=5)
+    
+    NNET_CV5 = classify(data,classifyMethod="nnet",cv=5)
+    
+    RPART_CV5 = classify(data,classifyMethod="rpart",cv=5,evaluator="")
+    
+    CTREE_CV5 = classify(data,classifyMethod="ctree",cv=5,evaluator="")  
+    
+    BAG_CV5 = classify(data,classifyMethod="bagging",cv=5,evaluator="")  
+         
+  }
 }
   

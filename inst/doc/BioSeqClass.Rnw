@@ -54,7 +54,7 @@ sequences which might result in overestimation of prediction accuracy, and then
 another most important step is to convert sequences into numerical features. 
 Thus, the general workflow for sequence-based classifications includes 
 (Figure \ref{fig:workflow3}): reduce homolog sequences; extract features from 
-sequences and code them to numerical values; combine and select features; build 
+sequences and code them to numerical values; evaluate and select features; build 
 classification model and evaluate its performance. 
 
 Here we present an R package (BioSeqClass) to carry out the general workflow for 
@@ -89,13 +89,21 @@ you will use the related function in BioSeqClass.
 \end{enumerate}
 
 \subsection{Installation}
-To install BioSeqClass, users can use the installation script "BioSeqClass.R" to 
-download the newest version and install it in R.
-\begin{Sinput}
+The biocLite script is used to install PAnnBuilder from within R:
+<<install, eval=FALSE>>=
+source("http://bioconductor.org/biocLite.R")
+biocLite("BioSeqClass")
+@
+Users also can use the installation script "BioSeqClass.R" to 
+download and install BioSeqClass package.
+<<install2, eval=FALSE>>=
 source("http://www.biosino.org/download/BioSeqClass/BioSeqClass.R")
 BioSeqClass()
+@
+Load package:
+<<load>>=
 library(BioSeqClass)
-\end{Sinput}
+@
 Note: Web Connection is needed to install BioSeqClass and its required packages.
 All the codes in this vignette were tested in R 2.8.0 and 2.9.0, thus the latest R 
 version is recommended.
@@ -148,7 +156,7 @@ feature coding is the key point for the accuracy of classification and
 prediction. Here we have summarized various feature coding methods
 used in published papers and carried out them in BioSeqClass (see table~\ref{table:feature}).
 These functions will allow more diverse choices of coding strategies and accelerate the feature 
-coding process. We also provide a function \Rfunction{combine} to test the 
+coding process. We also provide a function \Rfunction{featureEvaluate} to test the 
 performance of models with different feature coding schemes and different 
 classification algorithms. 
                                   
@@ -276,9 +284,9 @@ from 0 to g) & \citep{8} \\ \hline
 \begin{tabular}{|l|p{0.6\textwidth}|l|}
 \hline
 \bf{Function} & \bf{Description} & \bf{Ref} \\ \hline
-\Rfunction{fsWeka} & feature selction by methods in WEKA & \citep{36} \\ \hline
+\Rfunction{selectWeka} & feature selction by methods in WEKA & \citep{36} \\ \hline
+\Rfunction{selectFFS} & feature forword selction based on the performance of classification model & \citep{13} \\ \hline
 \Rfunction{classify} & build and test model with cross validation, also support feature selection by envoking WEKA & \\ \hline
-\Rfunction{fsFFS} & feature forword selction based on the performance of classification model & \citep{13} \\ \hline
 \end{tabular}                     
 \end{center}                  
 \end{table}       
@@ -382,20 +390,20 @@ all features.
 @
 
 \item Different feature coding methods usually might result in different prediction 
-performance. \Rfunction{combine} can be used to test multiple feature 
+performance. \Rfunction{featureEvaluate} can be used to test multiple feature 
 coding methods. Figure \ref{fig:FeatureSets16} shows the 3D plot of prediction 
 accuracy varied with feature coding functions and parameters. It can be generated
-by employing \Rfunction{combine} as follows (Note: It may be time consuming!):
+by employing \Rfunction{featureEvaluate} as follows (Note: It may be time consuming!):
 <<featureTest, eval=FALSE>>=
   fileName = tempfile()
   # Note: It may be time consuming.
-  testFeatureSet = combine(seq, classLable, fileName, cv=5, 
+  testFeatureSet = featureEvaluate(seq, classLable, fileName, cv=5, 
     ele.type='aminoacid', featureMethod=c('Binary','GapPairComposition'),
     classifyMethod='libsvm',
     group=c('aaH', 'aaV', 'aaZ', 'aaP', 'aaF', 'aaS', 'aaE'), g=0,
     hydro.methods=c('kpm', 'SARAH1'), hydro.indexs=c('hydroE', 'hydroF', 'hydroC') )
   summary = read.csv(fileName,sep="\t",header=T)      
-  # Plot the result of 'combine'
+  # Plot the result of 'featureEvaluate'
   if( !require("scatterplot3d") ){
     install.packages("scatterplot3d",repos="http://stat.ethz.ch/CRAN",quiet=T) 
   }
@@ -406,7 +414,7 @@ by employing \Rfunction{combine} as follows (Note: It may be time consuming!):
   testResult = data.frame(as.integer(tmp2), as.integer(tmp1), summary[,"acc"])
   s3d=scatterplot3d(testResult,
       color=c('red','blue')[testResult[,2]], pch=19, xlab='Parameter',
-      ylab='Feature Coding', main='Result of combine',
+      ylab='Feature Coding',
       zlab='Accuracy', lab=c(9,3,7),       
       x.ticklabs=gsub('class: ','',sort(unique(tmp2))), 
       type='h',ylim=c(0,3),y.margin.add=2.5,
@@ -416,10 +424,10 @@ by employing \Rfunction{combine} as follows (Note: It may be time consuming!):
 \item Features from multiple functions can be combined and re-selected to increase the 
 prediction accuracy. In the following code chunk, the first three feature sets 
 from 'testFeatureSet' are combined together ('testFeatureSet' is generated in the 
-aforementioned codes by \Rfunction{combine}). Then feature selection functions
-(\Rfunction{classify} and \Rfunction{fsFFS}) can be employed to 
+aforementioned codes by \Rfunction{featureEvaluate}). Then feature selection functions
+(\Rfunction{classify} and \Rfunction{selectFFS}) can be employed to 
 selecte features. (\Rfunction{classify} has been illustrated in the aforementioned 
-code chunk. Thus \Rfunction{fsFFS} is used here to do feature forward selection 
+code chunk. Thus \Rfunction{selectFFS} is used here to do feature forward selection 
 to select a subset with maximum prediction accuracy (Note: It may be time consuming!). 
 The process of feature selection and the increasing 
 accuracy are shown in Figure \ref{fig:cvFFSClassify0005}.
@@ -443,14 +451,14 @@ accuracy are shown in Figure \ref{fig:cvFFSClassify0005}.
   }
   name <- colnames(data)
   data <- data.frame(data, tmp[,ncol(tmp)] )  ## Combined features
-  # Use 'fsFFS' to do feature forward selection.
+  # Use 'selectFFS' to do feature forward selection.
   # Note: It may be time consuming.
-  combineFeatureResult = fsFFS(data,accCutoff=0.005,
+  combineFeatureResult = selectFFS(data,accCutoff=0.005,
     classifyMethod="knn",cv=5)  ## It is time consuming.
   tmp = sapply(combineFeatureResult,function(x){
     c(length(x$features),x$performance["acc"])})
   plot(tmp[1,],tmp[2,],xlab="Feature Number",ylab="Accuracy",
-    main="Result of 'fsFFS'", pch=19)
+    , pch=19)
   lines(tmp[1,],tmp[2,])
 @
 \end{enumerate}
@@ -459,14 +467,14 @@ accuracy are shown in Figure \ref{fig:cvFFSClassify0005}.
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics{FeatureSets16.pdf}
-\caption{\label{fig:FeatureSets16}Result of \Rfunction{combine}.}
+\caption{\label{fig:FeatureSets16}Result of \Rfunction{featureEvaluate}.}
 \end{center}
 \end{figure}
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics{cvFFSClassify0005.pdf}
-\caption{\label{fig:cvFFSClassify0005}Result of \Rfunction{fsFFS}.}
+\caption{\label{fig:cvFFSClassify0005}Result of \Rfunction{selectFFS}.}
 \end{center}
 \end{figure}
 
