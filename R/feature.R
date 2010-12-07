@@ -16,8 +16,7 @@ elements <- function(ele.type){
                          "H","Y","C","V","L","I","M","F"),
            "aminoacid2" = list("R","K","E","D","Q","N","W","G","A","S","T","P",
                          "H","Y","C","V","L","I","M","F","O"),
-           stop("parameter 'ele.type' has to be: rnaBase, dnaBase, aminoacid 
-             or aminoacid2"),
+           stop("parameter 'ele.type' has to be: rnaBase, dnaBase, aminoacid or aminoacid2")
         )
    names(e) = unlist(e)    
    return(e)                       
