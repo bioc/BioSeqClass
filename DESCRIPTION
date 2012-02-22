@@ -1,5 +1,5 @@
 Package: BioSeqClass
-Version: 1.13.1
+Version: 1.13.2
 Title: Classification for Biological Sequences
 Author: Li Hong sysptm@gmail.com 
 Maintainer: Li Hong <sysptm@gmail.com> 
@@ -12,5 +12,4 @@ biocViews: Classification
 License: LGPL (>= 2.0)
 ZipData: no
 LazyLoad: yes
-
 Depends: R (>= 2.10)
