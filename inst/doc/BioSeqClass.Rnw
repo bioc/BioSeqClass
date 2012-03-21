@@ -410,9 +410,6 @@ by employing \Rfunction{featureEvaluate} as follows (Note: It may be time consum
     hydro.methods=c('kpm', 'SARAH1'), hydro.indexs=c('hydroE', 'hydroF', 'hydroC') )
   summary = read.csv(fileName,sep="\t",header=T)      
   # Plot the result of 'featureEvaluate'
-  if( !require("scatterplot3d") ){
-    install.packages("scatterplot3d",repos="http://stat.ethz.ch/CRAN",quiet=T) 
-  }
   require("scatterplot3d")     
   tmp1 = summary[,"Feature_Function"]
   tmp2 = as.factor(sapply(as.vector(summary[,'Feature_Parameter']),
