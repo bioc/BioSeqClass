@@ -111,7 +111,7 @@ distance <- function(seq1,seq2)
 getNegSite <- function(posSite, seq, aa){
   protein = unique(sapply(posSite,function(x){unlist(strsplit(x,split=":"))[1]}))
   negSite = unlist(sapply(protein,function(x){
-              tmp = unlist(strsplit(seq[[x]][["seq"]],split=""))
+              tmp = unlist(strsplit(seq[x],split=""))
               paste(x,(1:length(tmp))[tmp==aa],sep=":")
             }))
   negSite = setdiff(negSite,posSite)          
@@ -122,12 +122,11 @@ getTrain <- function(seqfile, posfile, aa, w, identity, balance = T){
     seq = as.character(readAAStringSet(seqfile))
     tmp = as.matrix(read.csv(posfile, sep = "\t",header=F))
     tmp = tmp[apply(tmp, 1, function(x) {
-        as.numeric(x[2]) - w > 0 & as.numeric(x[2]) + w <= length(unlist(strsplit(seq[[x[1]]][["seq"]], 
-            split = "")))
+        as.numeric(x[2]) - w > 0 & as.numeric(x[2]) + w <= nchar(seq[x[1]])
     }), ]
     posSeq = list()
     for (x in 1:nrow(tmp) ){posSeq[[x]]=list("desc"=paste(tmp[x, 1], as.numeric(tmp[x, 2]), sep = ":"),
-                                             "seq"=substr(seq[[tmp[x, 1]]][["seq"]], as.numeric(tmp[x, 2]) - w, as.numeric(tmp[x, 2]) + w) ) }        
+                                             "seq"=substr(seq[tmp[x, 1]], as.numeric(tmp[x, 2]) - w, as.numeric(tmp[x, 2]) + w) ) }        
     print(paste("Positive Site:", length(posSeq)))
     print(paste("Positive Protein:", length(unique(sapply(sapply(posSeq,function(x){x[["desc"]]}), 
         function(x) {
@@ -145,12 +144,11 @@ getTrain <- function(seqfile, posfile, aa, w, identity, balance = T){
         unlist(strsplit(x, split = ":"))
     }))
     tmp = tmp[apply(tmp, 1, function(x) {
-        as.numeric(x[2]) - w > 0 & as.numeric(x[2]) + w <= length(unlist(strsplit(seq[[x[1]]][["seq"]], 
-            split = "")))
+        as.numeric(x[2]) - w > 0 & as.numeric(x[2]) + w <= nchar(seq[x[1]])
     }), ]
     negSeq = list()
     for (x in 1:nrow(tmp) ){negSeq[[x]]=list("desc"=paste(tmp[x, 1], as.numeric(tmp[x, 2]), sep = ":"),
-                                             "seq"=substr(seq[[tmp[x, 1]]][["seq"]], as.numeric(tmp[x, 2]) - w, as.numeric(tmp[x, 2]) + w) ) }        
+                                             "seq"=substr(seq[tmp[x, 1]], as.numeric(tmp[x, 2]) - w, as.numeric(tmp[x, 2]) + w) ) }        
 
     tmp1=sapply(posSeq,function(x){x[["seq"]]})
     tmp2=sapply(negSeq,function(x){x[["seq"]]})    
