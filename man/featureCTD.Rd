@@ -28,10 +28,9 @@
 if(interactive()){  
   file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")  
   library(Biostrings)
-  tmp = readFASTA(file)
+  tmp = readAAStringSet(file)
 
-  proteinSeq = sapply(tmp,function(x){x[["seq"]]})
-  names(proteinSeq) = sapply(tmp,function(x){x[["desc"]]})
+  proteinSeq = as.character(tmp)
   
   CTD1 = featureCTD(proteinSeq, class=elements("aminoacid") )
   CTD2 = featureCTD(proteinSeq, class=aaClass("aaV") )

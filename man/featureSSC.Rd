@@ -44,9 +44,8 @@
 \examples{
 if(interactive()){  
   file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")  
-  tmp = readFASTA(file) 
-  proteinSeq = sapply(tmp,function(x){x[["seq"]]})
-  names(proteinSeq) = sapply(tmp,function(x){x[["desc"]]})
+  tmp = readAAStringSet(file) 
+  proteinSeq = as.character(tmp)
   
   DSSP1 = getDSSP(c("108l","43ca"))
   DSSP2 = getDSSP(c("108l","43ca","aaaa")) 

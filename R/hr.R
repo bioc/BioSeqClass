@@ -119,8 +119,7 @@ getNegSite <- function(posSite, seq, aa){
 }
 
 getTrain <- function(seqfile, posfile, aa, w, identity, balance = T){
-    seq = readFASTA(seqfile, strip.desc=TRUE)
-    names(seq) = sapply(seq,function(x){x[["desc"]]})    
+    seq = as.character(readAAStringSet(seqfile))
     tmp = as.matrix(read.csv(posfile, sep = "\t",header=F))
     tmp = tmp[apply(tmp, 1, function(x) {
         as.numeric(x[2]) - w > 0 & as.numeric(x[2]) + w <= length(unlist(strsplit(seq[[x[1]]][["seq"]], 

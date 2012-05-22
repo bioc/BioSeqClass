@@ -187,7 +187,7 @@ accuracy, and matthews correlation coefficient.
 \begin{tabular}{|l|l|}
 \hline
 \bf{Existing R Package} & \bf{Functions used by BioSeqClass}\\ \hline
-\Rpackage{Biostrings} & readFASTA, writeFASTA \\ \hline
+\Rpackage{Biostrings} & readAAStringSet, writeFASTA \\ \hline
 \Rpackage{e1071} & svm \\ \hline
 \Rpackage{ipred} & bagging \\ \hline
 \Rpackage{klaR} & svmlight, NaiveBayes \\ \hline

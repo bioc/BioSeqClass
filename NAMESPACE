@@ -13,7 +13,7 @@ importFrom(rpart, rpart)
 importFrom(stats, predict, sd)
 importFrom(tree, tree)
 importFrom(utils, data, read.csv, write.table)
-importFrom(Biostrings, readFASTA, writeFASTA)
+importFrom(Biostrings, readDNAStringSet, writeFASTA)
 importMethodsFrom(Biostrings, substr)
 
 export(

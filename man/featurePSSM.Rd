@@ -30,9 +30,8 @@
 \examples{
 if(interactive()){
   file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")  
-  tmp = readFASTA(file) 
-  proteinSeq = sapply(tmp,function(x){x[["seq"]]})
-  names(proteinSeq) = sapply(tmp,function(x){x[["desc"]]})
+  tmp = readAAStringSet(file) 
+  proteinSeq = as.character(tmp)
    
   ## Need "blastpgp" program and a formated database. Database can be formated by "formatdb" program.
   PSSM1 = featurePSSM(proteinSeq[1:2], start.pos=rep(1,2), stop.pos=rep(10,2), psiblast.path="blastpgp", database.path="./result1.fasta")  

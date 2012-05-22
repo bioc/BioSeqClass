@@ -76,14 +76,14 @@
   if(interactive()){  
     file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")
     library(Biostrings)
-    seq = readFASTA(file)
+    seq = as.character(readAAStringSet(file))
     ## Homolog reduction of whole-length sequence by cd-hit
     # need cd-hit program;
     reducSeq50 = hr(seq, method="cdhit", identity=0.5, cdhit.path="/people/hongli/cd-hit")
     
     file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.site")
     tmp = as.matrix(read.csv(file, sep="\t",header=F))
-    logical = apply(tmp,1,function(x){ l=length(unlist(strsplit(seq[x[1]],split=""))); (l>=as.numeric(x[2])+7 & as.numeric(x[2])-7>0) })
+    logical = apply(tmp,1,function(x){ l=nchar(seq[x[1]]); (l>=as.numeric(x[2])+7 & as.numeric(x[2])-7>0) })
     fragment = sub.seq(seq[tmp[logical,1]], as.numeric(tmp[logical,2])-7, as.numeric(tmp[logical,2])+7)  
     ## Homolog reduction of short sequence fragment
     # It may be slow.
