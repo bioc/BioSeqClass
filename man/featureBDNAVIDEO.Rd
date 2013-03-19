@@ -18,7 +18,7 @@
 \author{Hong Li}
 \examples{
 if(interactive()){
-  file = file.path(.path.package("BioSeqClass"), "example", "test.rna")    
+  file = file.path(path.package("BioSeqClass"), "example", "test.rna")    
   rna = as.matrix(read.csv(file,header=F,sep="\t"))[,1]
   
   BDNAVIDEO = featureBDNAVIDEO(rna)

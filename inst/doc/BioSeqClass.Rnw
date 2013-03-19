@@ -187,7 +187,7 @@ accuracy, and matthews correlation coefficient.
 \begin{tabular}{|l|l|}
 \hline
 \bf{Existing R Package} & \bf{Functions used by BioSeqClass}\\ \hline
-\Rpackage{Biostrings} & readAAStringSet, writeFASTA \\ \hline
+\Rpackage{Biostrings} & readAAStringSet, writeXStringSet \\ \hline
 \Rpackage{e1071} & svm \\ \hline
 \Rpackage{ipred} & bagging \\ \hline
 \Rpackage{klaR} & svmlight, NaiveBayes \\ \hline
@@ -332,8 +332,8 @@ are used as examples in the following codes.
 <<homologReduction>>=
   library(BioSeqClass)
   # Example data in BioSeqClass.
-  file=file.path(.path.package("BioSeqClass"),"example","acetylation_K.fasta")
-  posfile = file.path(.path.package("BioSeqClass"), 
+  file=file.path(path.package("BioSeqClass"),"example","acetylation_K.fasta")
+  posfile = file.path(path.package("BioSeqClass"), 
        "example", "acetylation_K.site")
   # Only a part of lysine acetylation sites are used for demo.
   posfile1=tempfile()
@@ -345,7 +345,7 @@ are used as examples in the following codes.
 \item If the original data are non-redundant positive/negative peptides. We directly 
 read the data into R and assign class labels for them.
 <<readData>>=
-  tmpDir=file.path(.path.package('BioSeqClass'), 'example')
+  tmpDir=file.path(path.package('BioSeqClass'), 'example')
   tmpFile1=file.path(tmpDir, 'acetylation_K.pos40.pep')
   tmpFile2=file.path(tmpDir, 'acetylation_K.neg40.pep')
   posSeq=as.matrix(read.csv(tmpFile1,header=F,sep='\t',row.names=1))[,1]

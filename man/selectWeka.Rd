@@ -46,7 +46,5 @@
  
 }
 \author{Hong Li}
-\examples{
- 
-}
+
   

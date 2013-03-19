@@ -82,8 +82,8 @@
 \author{Hong Li}
 \examples{
   ## read positive/negative sequence from files.
-  tmpfile1 = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.pos40.pep")
-  tmpfile2 = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.neg40.pep")
+  tmpfile1 = file.path(path.package("BioSeqClass"), "example", "acetylation_K.pos40.pep")
+  tmpfile2 = file.path(path.package("BioSeqClass"), "example", "acetylation_K.neg40.pep")
   posSeq = as.matrix(read.csv(tmpfile1,header=FALSE,sep="\t",row.names=1))[,1]
   negSeq = as.matrix(read.csv(tmpfile2,header=FALSE,sep="\t",row.names=1))[,1]
   data = data.frame(rbind(featureBinary(posSeq,elements("aminoacid")), 

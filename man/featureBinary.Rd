@@ -22,7 +22,7 @@
 \author{Hong Li}
 \examples{
 if(interactive()){
-  file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.pos40.pep")
+  file = file.path(path.package("BioSeqClass"), "example", "acetylation_K.pos40.pep")
   seq = as.matrix(read.csv(file,header=F,sep="\t",row.names=1))[,1]
   
   BIN1 = featureBinary(seq,elements("aminoacid"))

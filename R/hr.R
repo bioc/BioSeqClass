@@ -48,12 +48,12 @@ cdhitHR <- function(seq, identity=0.3, cdhit.path){
     .pathPerl(perlName,.Platform$OS.type)    
     inFasta = tempfile("tempFasta") ;
     outFile = tempfile("tempOut") ;
-    writeFASTA(seq,inFasta)
+    writeXStringSet(seq,inFasta)
     write(paste("$inFasta='",inFasta,"';",sep=""), file = perlName, append = TRUE)     
     write(paste("$outFile='",outFile,"';",sep=""), file = perlName, append = TRUE)     
     write(paste("$identity=",identity,";"), file = perlName, append = TRUE) 
     write(paste("$cdhit='",cdhit.path,"';",sep=""), file = perlName, append = TRUE) 
-    write(readLines( file.path(.path.package("BioSeqClass"),"scripts",
+    write(readLines( file.path(path.package("BioSeqClass"),"scripts",
       "homologReduction_cdhit") ), file = perlName, append = TRUE) 
     .callPerl(perlName, .Platform$OS.type) 
     reducSeq = seq[as.vector(as.matrix(read.csv(outFile,header=F,sep="\t")))]     

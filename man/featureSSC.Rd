@@ -43,7 +43,7 @@
 \author{Hong Li}
 \examples{
 if(interactive()){  
-  file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")  
+  file = file.path(path.package("BioSeqClass"), "example", "acetylation_K.fasta")  
   tmp = readAAStringSet(file) 
   proteinSeq = as.character(tmp)
   

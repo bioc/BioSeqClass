@@ -74,14 +74,14 @@
   distance("AABD","ACBD")
   distance("AABD","ECBD")
   if(interactive()){  
-    file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")
+    file = file.path(path.package("BioSeqClass"), "example", "acetylation_K.fasta")
     library(Biostrings)
     seq = as.character(readAAStringSet(file))
     ## Homolog reduction of whole-length sequence by cd-hit
     # need cd-hit program;
     reducSeq50 = hr(seq, method="cdhit", identity=0.5, cdhit.path="/people/hongli/cd-hit")
     
-    file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.site")
+    file = file.path(path.package("BioSeqClass"), "example", "acetylation_K.site")
     tmp = as.matrix(read.csv(file, sep="\t",header=F))
     logical = apply(tmp,1,function(x){ l=nchar(seq[x[1]]); (l>=as.numeric(x[2])+7 & as.numeric(x[2])-7>0) })
     fragment = sub.seq(seq[tmp[logical,1]], as.numeric(tmp[logical,2])-7, as.numeric(tmp[logical,2])+7)  
@@ -90,8 +90,8 @@
     reducSeq = hr(fragment, method="aligndis", identity=0.4)
     
     ## produce train set based on given positive sites and fasta sequences. 
-    file = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.fasta")
-    posfile = file.path(.path.package("BioSeqClass"), "example", "acetylation_K.site")
+    file = file.path(path.package("BioSeqClass"), "example", "acetylation_K.fasta")
+    posfile = file.path(path.package("BioSeqClass"), "example", "acetylation_K.site")
     ## "getTrain" integrate negative set construction and homolog reduction. It is designed for site level training data. 
     # It may be very slow.
     data = getTrain(file, posfile, aa="K", w=7, identity=0.4)

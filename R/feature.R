@@ -634,7 +634,7 @@ getDSSP <- function(pdb){
 ##    write(paste("$Sequence='",seq[x],"';",sep=""), file = perlName, append = TRUE)    
 ##    write(paste("$name='",x,"';",sep=""), file = perlName, append = TRUE)  
 ##    write(paste("open(OUT,'>",outName,"');",sep=""), file = perlName, append = TRUE)
-##    write(readLines( file.path(.path.package("BioSeqClass"),"scripts","psipred") ), 
+##    write(readLines( file.path(path.package("BioSeqClass"),"scripts","psipred") ), 
 ##      file = perlName, append = TRUE) 
 ##    .callPerl(perlName, OS)
 ##    as.list(read.csv(outName,header=T,sep="\t"))    
@@ -650,7 +650,7 @@ getDSSP <- function(pdb){
 ##    .pathPerl(perlName,.Platform$OS.type)    
 ##    write(paste("$seq='",x,"';",sep=""), file = perlName, append = TRUE)    
 ##    write(paste("open(OUT,'>",outName,"');",sep=""), file = perlName, append = TRUE)
-##    write(readLines( file.path(.path.package("BioSeqClass"),"scripts","jnet") ), 
+##    write(readLines( file.path(path.package("BioSeqClass"),"scripts","jnet") ), 
 ##      file = perlName, append = TRUE) 
 ##    .callPerl(perlName, OS)
 ##    as.list(read.csv(outName,header=T,sep="\t"))    
@@ -670,7 +670,7 @@ predictPROTEUS <- function(seq,proteus2.organism="euk"){
     write(paste("$organism='",proteus2.organism,"';",sep=""), file = perlName, append = TRUE)
     write(paste("$sequence='",x,"';",sep=""), file = perlName, append = TRUE)    
     write(paste("open(OUT,'>",outName,"');",sep=""), file = perlName, append = TRUE)
-    write(readLines( file.path(.path.package("BioSeqClass"),"scripts","proteus2") ), 
+    write(readLines( file.path(path.package("BioSeqClass"),"scripts","proteus2") ), 
       file = perlName, append = TRUE) 
     .callPerl(perlName, OS)    
     data <-as.matrix(read.csv(outName,header=F,sep="\t",row.names=1))
@@ -793,7 +793,7 @@ predictASAP <- function(seq, asap.model="1"){
     write(paste("$model='",asap.model,"';",sep=""), file = perlName, append = TRUE)
     write(paste("$seq='",x,"';",sep=""), file = perlName, append = TRUE)    
     write(paste("open(out,'>",outName,"');",sep=""), file = perlName, append = TRUE)
-    write(readLines( file.path(.path.package("BioSeqClass"),"scripts","asap") ), 
+    write(readLines( file.path(path.package("BioSeqClass"),"scripts","asap") ), 
       file = perlName, append = TRUE) 
     .callPerl(perlName, OS)
     as.list(read.csv(outName,header=T,sep="\t"))
@@ -871,7 +871,7 @@ featurePSSM <- function(seq, start.pos, stop.pos, psiblast.path, database.path){
                   out2 = paste(tmp,"pssm",sep=".") ;     
                   outputSeq = list()
                   outputSeq[[1]]=list("desc"=names(seq)[x],"seq"=seq[x])
-                  writeFASTA(outputSeq,inFasta)  
+                  writeXStringSet(outputSeq,inFasta)  
                   system(paste(psiblast.path, "-d", database.path, "-i",inFasta,"-j 3 -o ", out1, "-Q", out2))
                   data = readLines(out2)                
                   pssm = sapply(start.pos[x]:stop.pos[x],function(y){                   
@@ -908,12 +908,12 @@ predictPFAM <- function(seq, hmmpfam.path, pfam.path, Evalue=10^-5){
   outFile = paste(inFasta,"pfam",sep=".") ;  
   outputSeq = list()                  
   for (x in 1:length(seq) ){outputSeq[[x]]=list("desc"=names(seq)[x],"seq"=seq[x]) }
-  writeFASTA(outputSeq,inFasta)    
+  writeXStringSet(outputSeq,inFasta)    
   write(paste("$inFasta='",inFasta,"';",sep=""), file = perlName, append = TRUE)     
   write(paste("$cutoff=",Evalue,";",sep=""), file = perlName, append = TRUE)       
   write(paste("$path='",hmmpfam.path,"';",sep=""), file = perlName, append = TRUE)   
   write(paste("$database='",pfam.path,"';",sep=""), file = perlName, append = TRUE)   
-  write(readLines( file.path(.path.package("BioSeqClass"),"scripts",
+  write(readLines( file.path(path.package("BioSeqClass"),"scripts",
     "hmmpfam") ), file = perlName, append = TRUE) 
   .callPerl(perlName, .Platform$OS.type) 
   tmp = as.matrix(read.csv(outFile,header=T,sep="\t"))
