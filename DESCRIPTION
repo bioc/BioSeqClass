@@ -1,11 +1,11 @@
 Package: BioSeqClass
-Version: 1.29.0
+Version: 1.29.1
 Title: Classification for Biological Sequences
-Author: Li Hong sysptm@gmail.com 
-Maintainer: Li Hong <sysptm@gmail.com> 
+Author: Li Hong sysptm@gmail.com
+Maintainer: Li Hong <sysptm@gmail.com>
 Imports: Biostrings, ipred, e1071, klaR, randomForest, class, tree, nnet,
          rpart, party, foreign, Biobase, utils, stats, grDevices
-Description: Extracting Features from Biological Sequences and Building 
+Description: Extracting Features from Biological Sequences and Building
              Classification Model
 Keyword: Classification
 biocViews: Classification
