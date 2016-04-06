@@ -22,11 +22,11 @@ selectWeka <- function(train,evaluator="CfsSubsetEval",search="BestFirst",n){
   write.arff(train,trainFile)
   tmpOut = tempfile("tempOut")
   if(search=="Ranker"){
-      command = paste(dQuote(.javaExecutable()), "-cp ", file.path(path.package("BioSeqClass"), "scripts", "weka.jar"),
+      command = paste(dQuote(.javaExecutable()), " -cp ", file.path(path.package("BioSeqClass"), "scripts", "weka.jar"),
                       " weka.attributeSelection.", evaluator, " -i ", trainFile,
                       " -s \"weka.attributeSelection.", search, " -N ", n, "\"", sep="" )
   }else{
-      command = paste(dQuote(.javaExecutable()), "-cp ", file.path(path.package("BioSeqClass"), "scripts", "weka.jar"),
+      command = paste(dQuote(.javaExecutable()), " -cp ", file.path(path.package("BioSeqClass"), "scripts", "weka.jar"),
                       " weka.attributeSelection.", evaluator, " -i ", trainFile,
                       " -s weka.attributeSelection.", search, sep="" )
   }
