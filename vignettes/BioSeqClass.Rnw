@@ -97,8 +97,9 @@ you will use the related function in BioSeqClass.
 \subsection{Installation}
 The biocLite script is used to install PAnnBuilder from within R:
 <<install, eval=FALSE>>=
-source("http://bioconductor.org/biocLite.R")
-biocLite("BioSeqClass")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("BioSeqClass")
 @
 Users also can use the installation script "BioSeqClass.R" to 
 download and install BioSeqClass package.

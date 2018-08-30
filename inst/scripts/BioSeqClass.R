@@ -11,8 +11,9 @@ BioSeqClass <- function(version="1.5.0"){
         install.packages(x,repos="http://stat.ethz.ch/CRAN",quiet=T)
       }
       if( any(x==c("Biobase","Biostrings")) ){
-        source("http://www.bioconductor.org/biocLite.R") 
-        biocLite(x)
+        if (!requireNamespace("BiocManager", quietly=TRUE))
+            install.packages("BiocManager")
+        BiocManager::install(x)
       }
       require(x,quietly=TRUE,character.only=TRUE) || stop(paste("Package",x,
       "is not correctly installed"))   
