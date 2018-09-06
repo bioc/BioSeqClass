@@ -95,7 +95,7 @@ you will use the related function in BioSeqClass.
 \end{enumerate}
 
 \subsection{Installation}
-The biocLite script is used to install PAnnBuilder from within R:
+BiocManager is used to install PAnnBuilder from within R:
 <<install, eval=FALSE>>=
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
