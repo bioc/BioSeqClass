@@ -1,5 +1,5 @@
 Package: BioSeqClass
-Version: 1.47.0
+Version: 1.47.1
 Title: Classification for Biological Sequences
 Author: Li Hong sysptm@gmail.com
 Maintainer: Li Hong <sysptm@gmail.com>
@@ -14,3 +14,4 @@ ZipData: no
 LazyLoad: yes
 Depends: R (>= 2.10), scatterplot3d
 Suggests: scatterplot3d
+PackageStatus: Deprecated
